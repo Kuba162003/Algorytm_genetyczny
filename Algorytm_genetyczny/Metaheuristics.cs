@@ -1,0 +1,290 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Algorytm_genetyczny
+{
+    public class Individual
+    {
+        private int[] chromosome;
+        private int value;
+        public Individual(int[] solution, int[] instancja)
+        {
+            chromosome = solution;
+            int m = chromosome.Length;
+            int k = instancja.Length;
+            int[] currentInstance = new int[k];
+            int idx = 0;
+
+            // Wyliczanie wszystkie odległości (D') z rozwiązania
+            for (int i = 0; i < m; i++)
+            {
+                for (int j = i + 1; j < m; j++)
+                {
+                    currentInstance[idx] = chromosome[j] - chromosome[i];
+                    idx++;
+                }
+            }
+
+            Array.Sort(currentInstance);
+
+            // liczenie część wspólną multizbiorów
+            int score = 0;
+            int pTarget = 0;  // Wskaźnik na instancję z generatora
+            int pCurrent = 0; // Wskaźnik na instancję osobnika
+
+            while (pTarget < k && pCurrent < k)
+            {
+                if (instancja[pTarget] == currentInstance[pCurrent])
+                {
+                    // Dopasowanie znalezione
+                    score++;
+                    pTarget++;
+                    pCurrent++;
+                }
+                else if (instancja[pTarget] < currentInstance[pCurrent])
+                {
+                    // Wartość z generatora jest mniejsza, więc przesuwamy wskaźnik docelowy
+                    pTarget++;
+                }
+                else
+                {
+                    // Wartość z chromosomu jest mniejsza, więc przesuwamy wskaźnik chromosomu
+                    pCurrent++;
+                }
+            }
+
+            value = score; // maksymalnie k
+        }
+        public int Value
+        {
+            get { return value; }
+        }
+        public int[] Chromosome
+        {
+            get { return chromosome; }
+        }
+    }
+    public class Metaheuristics
+    {
+        private int[] instance;
+        private int[] best_solution;
+        private int m;
+        public Metaheuristics(int[] current_instance)
+        {
+            instance = current_instance;
+            int k = current_instance.Length;
+            m = (1 + ((int)(Math.Sqrt(1 + 8 * k)))) / 2;
+            best_solution = new int[m];
+        }
+
+        private Individual[] First_population(int population_size, int c_random, int i_random)
+        {
+            if (c_random + i_random > 100 || c_random < 0 || i_random < 0)
+            {
+                throw new ArgumentException("Składowe losowe (całkowicie losowe i losowane z instancji) muszą być w przedziale 0-100 i ich suma nie może przekroczyć 100%.");
+            }
+            if (population_size < 0)
+            {
+                throw new ArgumentException("Wielkość populacji musi być większa od 0");
+            }
+            int completely_random = (int)Math.Round((c_random / 100.0) * population_size, MidpointRounding.AwayFromZero);
+            int instance_random = (int)Math.Round((i_random / 100.0) * population_size, MidpointRounding.AwayFromZero);
+            int greedy = population_size - completely_random - instance_random;
+
+            Individual[] population = new Individual[population_size];
+            int maxLength = instance[instance.Length - 1];
+            // wyznaczanie całkowicie losowej części populacji
+            for (int i = 0; i < completely_random; i++)
+            {
+                int[] solution = new int[m];
+                solution[0] = 0;
+
+                List<int> sol_tab = new List<int>();
+                for (int j = 1; j < m; j++)
+                {
+                    int sol = Random.Shared.Next(1, maxLength + 1); // zakres od 1 do największej odległości w instancji
+                    if (sol_tab.Contains(sol))
+                    {
+                        j--;
+                        continue;
+                    }
+                    solution[j] = sol;
+                    sol_tab.Add(sol);
+                }
+                Array.Sort(solution);
+                population[i] = new Individual(solution, instance);
+            }
+
+            // wyznaczanie osobników losowanych z wartości z instancji
+            for(int i = completely_random; i < completely_random + instance_random; i++)
+            {
+                int[] solution = new int[m];
+                solution[0] = 0;
+                solution[m-1] = maxLength;
+
+                List<int> sol_tab = new List<int> { 0, maxLength };
+                List<int> index_tab = new List<int>();
+
+                int no_unique = 0; //licznik nieudanych losowań unikalnych wartości
+                bool unique = true; 
+                for (int j = 1; j < m-1; j++)
+                {
+                    //gdy w instancji niewystarczająco unikatowych wartości - całkowicie losowe
+                    if (no_unique > instance.Length)
+                    {
+                        unique = false;
+                    }
+
+                    int sol;
+
+                    if (unique)
+                    {
+                        int index = Random.Shared.Next(0, instance.Length);
+                        if(index_tab.Contains(index)) //czy indeks już wylosowany
+                        {
+                            j--;
+                            no_unique++;
+                            continue;
+                        }
+                        sol = instance[index];
+                        index_tab.Add(index);
+                    }
+                    else
+                    {
+                        sol = Random.Shared.Next(1, maxLength + 1);
+                    }
+
+                    if (sol_tab.Contains(sol)) //sprawdzanie unikalności
+                    {
+                        j--;
+                        no_unique++;
+                        continue;
+                    }
+
+                    solution[j] = sol;
+                    sol_tab.Add(sol);
+                    no_unique = 0;
+                }
+                Array.Sort(solution);
+                population[i] = new Individual(solution, instance);
+            }
+
+            //wyznaczanie zachłannej części populacji 
+            for(int i = completely_random + instance_random; i < population_size; i++)
+            {
+                int[] solution = new int[m];
+                solution[0] = 0;
+                solution[m - 1] = maxLength;
+
+                List<int> sol_tab = new List<int> { 0, maxLength };
+                List<int> index_tab = new List<int>();
+
+                int no_unique = 0; //licznik nieudanych losowań unikalnych wartości
+                bool unique = true;
+
+                List<int> noValids = new List<int>();
+                int validCounter = 0;
+
+                for (int j = 1; j < m - 1; j++)
+                {
+                    //gdy w instancji niewystarczająco unikatowych wartości - całkowicie losowe
+                    if (no_unique > instance.Length)
+                    {
+                        unique = false;
+                    }
+
+                    int sol;
+
+                    if (unique)
+                    {
+                        int index = Random.Shared.Next(0, instance.Length);
+                        if (index_tab.Contains(index)) //czy indeks już wylosowany
+                        {
+                            j--;
+                            no_unique++;
+                            continue;
+                        }
+                        sol = instance[index];
+                        index_tab.Add(index);
+                    }
+                    else
+                    {
+                        sol = Random.Shared.Next(1, maxLength + 1);
+                    }
+
+                    if (sol_tab.Contains(sol)) //sprawdzanie unikalności
+                    {
+                        j--;
+                        no_unique++;
+                        continue;
+                    }
+
+                    //sprawdzanie czy odległości istnieją w instancji
+                    if (unique)
+                    {
+                        bool isValid = true;
+
+                        //sprawdzamy odległości do wszystkich już wstawionych punktów (od 0 do j-1)
+                        for (int k = 0; k < j; k++)
+                        {
+                            int distance = Math.Abs(sol - solution[k]);
+
+                            // Array.BinarySearch jest szybkie. Zwraca wartość < 0, jeśli nie ma elementu
+                            if (Array.BinarySearch(instance, distance) < 0)
+                            {
+                                isValid = false;
+                                break;
+                            }
+                        }
+
+                        //sprawdzamy odległość do maxLength (koniec)
+                        if (isValid)
+                        {
+                            int distanceToMax = Math.Abs(maxLength - sol);
+                            if (Array.BinarySearch(instance, distanceToMax) < 0)
+                            {
+                                isValid = false;
+                            }
+                        }
+
+                        if (!isValid)
+                        {
+
+                            if (validCounter <= instance.Length)
+                            {
+                                noValids.Add(sol);
+                                validCounter++;
+                                j--;
+                                continue;
+                            }
+                            else
+                            {
+                                noValids.RemoveAll(x => sol_tab.Contains(x)); //jeśli już jest taki to usuwamy (unikalne wartości w tablicy)
+                                if (noValids.Count > 0)
+                                {
+                                    int randomIndex = Random.Shared.Next(0, noValids.Count);
+                                    sol = noValids[randomIndex];
+                                    noValids.RemoveAt(randomIndex);
+
+                                }
+                            }
+                        }
+                    }
+
+                    solution[j] = sol;
+                    sol_tab.Add(sol);
+                    no_unique = 0;
+                    validCounter = 0;
+                }
+
+                Array.Sort(solution);
+                population[i] = new Individual(solution, instance);
+            }
+
+            return population;
+        }
+    }
+}
