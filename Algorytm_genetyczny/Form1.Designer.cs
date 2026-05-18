@@ -40,11 +40,35 @@
             minDistance_label = new Label();
             textBox_minDistance = new TextBox();
             comboBox_dlugosc = new ComboBox();
+            tabControl1 = new TabControl();
+            generator_tab = new TabPage();
+            Przekazanie = new Button();
+            metaheurystyka_tab = new TabPage();
+            textBox_time = new TextBox();
+            label_time = new Label();
+            textBox_tour_size = new TextBox();
+            label_tour_size = new Label();
+            textBox_random_mut = new TextBox();
+            label_random_mut = new Label();
+            textBox_mut_chance = new TextBox();
+            label_mut_chance = new Label();
+            textBox_i_random = new TextBox();
+            textBox_c_random = new TextBox();
+            label_i_random = new Label();
+            label_c_random = new Label();
+            textBox_pop_size = new TextBox();
+            label_pop_size = new Label();
+            label2 = new Label();
+            label1 = new Label();
+            Uruchomienie_metaheurystyki = new Button();
+            tabControl1.SuspendLayout();
+            generator_tab.SuspendLayout();
+            metaheurystyka_tab.SuspendLayout();
             SuspendLayout();
             // 
             // GeneratorBTN
             // 
-            GeneratorBTN.Location = new Point(261, 203);
+            GeneratorBTN.Location = new Point(238, 163);
             GeneratorBTN.Name = "GeneratorBTN";
             GeneratorBTN.Size = new Size(94, 29);
             GeneratorBTN.TabIndex = 0;
@@ -54,15 +78,18 @@
             // 
             // InstanceBox
             // 
-            InstanceBox.Location = new Point(12, 269);
+            InstanceBox.Location = new Point(6, 209);
+            InstanceBox.MaxLength = 200000;
+            InstanceBox.Multiline = true;
             InstanceBox.Name = "InstanceBox";
-            InstanceBox.Size = new Size(776, 27);
+            InstanceBox.ScrollBars = ScrollBars.Vertical;
+            InstanceBox.Size = new Size(780, 118);
             InstanceBox.TabIndex = 1;
             // 
             // errors_label
             // 
             errors_label.AutoSize = true;
-            errors_label.Location = new Point(40, 173);
+            errors_label.Location = new Point(17, 133);
             errors_label.Name = "errors_label";
             errors_label.Size = new Size(112, 20);
             errors_label.TabIndex = 3;
@@ -71,7 +98,7 @@
             // label_k
             // 
             label_k.AutoSize = true;
-            label_k.Location = new Point(40, 84);
+            label_k.Location = new Point(17, 44);
             label_k.Name = "label_k";
             label_k.Size = new Size(70, 20);
             label_k.TabIndex = 4;
@@ -80,7 +107,7 @@
             // label_maxLenght
             // 
             label_maxLenght.AutoSize = true;
-            label_maxLenght.Location = new Point(40, 114);
+            label_maxLenght.Location = new Point(17, 74);
             label_maxLenght.Name = "label_maxLenght";
             label_maxLenght.Size = new Size(154, 20);
             label_maxLenght.TabIndex = 5;
@@ -88,29 +115,32 @@
             // 
             // textBox_maxLength
             // 
-            textBox_maxLength.Location = new Point(230, 111);
+            textBox_maxLength.Location = new Point(207, 71);
             textBox_maxLength.Name = "textBox_maxLength";
             textBox_maxLength.Size = new Size(125, 27);
             textBox_maxLength.TabIndex = 6;
+            textBox_maxLength.Text = "10000";
             // 
             // textBox_k
             // 
-            textBox_k.Location = new Point(230, 81);
+            textBox_k.Location = new Point(207, 41);
             textBox_k.Name = "textBox_k";
             textBox_k.Size = new Size(125, 27);
             textBox_k.TabIndex = 7;
+            textBox_k.Text = "1225";
             // 
             // textBox_errors
             // 
-            textBox_errors.Location = new Point(230, 170);
+            textBox_errors.Location = new Point(207, 130);
             textBox_errors.Name = "textBox_errors";
             textBox_errors.Size = new Size(125, 27);
             textBox_errors.TabIndex = 8;
+            textBox_errors.Text = "5";
             // 
             // Solution_label
             // 
             Solution_label.AutoSize = true;
-            Solution_label.Location = new Point(12, 321);
+            Solution_label.Location = new Point(17, 368);
             Solution_label.Name = "Solution_label";
             Solution_label.Size = new Size(50, 20);
             Solution_label.TabIndex = 9;
@@ -119,7 +149,7 @@
             // minDistance_label
             // 
             minDistance_label.AutoSize = true;
-            minDistance_label.Location = new Point(40, 144);
+            minDistance_label.Location = new Point(17, 104);
             minDistance_label.Name = "minDistance_label";
             minDistance_label.Size = new Size(152, 20);
             minDistance_label.TabIndex = 10;
@@ -127,43 +157,254 @@
             // 
             // textBox_minDistance
             // 
-            textBox_minDistance.Location = new Point(230, 141);
+            textBox_minDistance.Location = new Point(207, 101);
             textBox_minDistance.Name = "textBox_minDistance";
             textBox_minDistance.Size = new Size(125, 27);
             textBox_minDistance.TabIndex = 11;
+            textBox_minDistance.Text = "10";
             // 
             // comboBox_dlugosc
             // 
             comboBox_dlugosc.DropDownStyle = ComboBoxStyle.DropDownList;
             comboBox_dlugosc.FormattingEnabled = true;
             comboBox_dlugosc.Items.AddRange(new object[] { "instancji", "rozwiązania" });
-            comboBox_dlugosc.Location = new Point(104, 81);
+            comboBox_dlugosc.Location = new Point(81, 41);
             comboBox_dlugosc.Name = "comboBox_dlugosc";
             comboBox_dlugosc.Size = new Size(106, 28);
             comboBox_dlugosc.TabIndex = 12;
+            // 
+            // tabControl1
+            // 
+            tabControl1.Controls.Add(generator_tab);
+            tabControl1.Controls.Add(metaheurystyka_tab);
+            tabControl1.Location = new Point(2, 5);
+            tabControl1.Name = "tabControl1";
+            tabControl1.SelectedIndex = 0;
+            tabControl1.Size = new Size(800, 433);
+            tabControl1.TabIndex = 13;
+            // 
+            // generator_tab
+            // 
+            generator_tab.Controls.Add(Przekazanie);
+            generator_tab.Controls.Add(textBox_maxLength);
+            generator_tab.Controls.Add(InstanceBox);
+            generator_tab.Controls.Add(Solution_label);
+            generator_tab.Controls.Add(comboBox_dlugosc);
+            generator_tab.Controls.Add(GeneratorBTN);
+            generator_tab.Controls.Add(textBox_minDistance);
+            generator_tab.Controls.Add(errors_label);
+            generator_tab.Controls.Add(minDistance_label);
+            generator_tab.Controls.Add(label_k);
+            generator_tab.Controls.Add(label_maxLenght);
+            generator_tab.Controls.Add(textBox_errors);
+            generator_tab.Controls.Add(textBox_k);
+            generator_tab.Location = new Point(4, 29);
+            generator_tab.Name = "generator_tab";
+            generator_tab.Padding = new Padding(3);
+            generator_tab.Size = new Size(792, 400);
+            generator_tab.TabIndex = 0;
+            generator_tab.Text = "Generator";
+            generator_tab.UseVisualStyleBackColor = true;
+            // 
+            // Przekazanie
+            // 
+            Przekazanie.Location = new Point(238, 333);
+            Przekazanie.Name = "Przekazanie";
+            Przekazanie.Size = new Size(286, 29);
+            Przekazanie.TabIndex = 13;
+            Przekazanie.Text = "Przekaż instancję do metaheurystyki";
+            Przekazanie.UseVisualStyleBackColor = true;
+            Przekazanie.Click += Przekazanie_Click;
+            // 
+            // metaheurystyka_tab
+            // 
+            metaheurystyka_tab.Controls.Add(textBox_time);
+            metaheurystyka_tab.Controls.Add(label_time);
+            metaheurystyka_tab.Controls.Add(textBox_tour_size);
+            metaheurystyka_tab.Controls.Add(label_tour_size);
+            metaheurystyka_tab.Controls.Add(textBox_random_mut);
+            metaheurystyka_tab.Controls.Add(label_random_mut);
+            metaheurystyka_tab.Controls.Add(textBox_mut_chance);
+            metaheurystyka_tab.Controls.Add(label_mut_chance);
+            metaheurystyka_tab.Controls.Add(textBox_i_random);
+            metaheurystyka_tab.Controls.Add(textBox_c_random);
+            metaheurystyka_tab.Controls.Add(label_i_random);
+            metaheurystyka_tab.Controls.Add(label_c_random);
+            metaheurystyka_tab.Controls.Add(textBox_pop_size);
+            metaheurystyka_tab.Controls.Add(label_pop_size);
+            metaheurystyka_tab.Controls.Add(label2);
+            metaheurystyka_tab.Controls.Add(label1);
+            metaheurystyka_tab.Controls.Add(Uruchomienie_metaheurystyki);
+            metaheurystyka_tab.Location = new Point(4, 29);
+            metaheurystyka_tab.Name = "metaheurystyka_tab";
+            metaheurystyka_tab.Padding = new Padding(3);
+            metaheurystyka_tab.Size = new Size(792, 400);
+            metaheurystyka_tab.TabIndex = 1;
+            metaheurystyka_tab.Text = "Metaheurystyka";
+            metaheurystyka_tab.UseVisualStyleBackColor = true;
+            // 
+            // textBox_time
+            // 
+            textBox_time.Location = new Point(304, 229);
+            textBox_time.Name = "textBox_time";
+            textBox_time.Size = new Size(125, 27);
+            textBox_time.TabIndex = 16;
+            textBox_time.Text = "10";
+            // 
+            // label_time
+            // 
+            label_time.AutoSize = true;
+            label_time.Location = new Point(175, 232);
+            label_time.Name = "label_time";
+            label_time.Size = new Size(123, 20);
+            label_time.TabIndex = 15;
+            label_time.Text = "Czas działania (s)";
+            // 
+            // textBox_tour_size
+            // 
+            textBox_tour_size.Location = new Point(304, 196);
+            textBox_tour_size.Name = "textBox_tour_size";
+            textBox_tour_size.Size = new Size(125, 27);
+            textBox_tour_size.TabIndex = 14;
+            textBox_tour_size.Text = "3";
+            // 
+            // label_tour_size
+            // 
+            label_tour_size.AutoSize = true;
+            label_tour_size.Location = new Point(176, 199);
+            label_tour_size.Name = "label_tour_size";
+            label_tour_size.Size = new Size(122, 20);
+            label_tour_size.TabIndex = 13;
+            label_tour_size.Text = "Wielkość turnieju";
+            // 
+            // textBox_random_mut
+            // 
+            textBox_random_mut.Location = new Point(304, 163);
+            textBox_random_mut.Name = "textBox_random_mut";
+            textBox_random_mut.Size = new Size(125, 27);
+            textBox_random_mut.TabIndex = 12;
+            textBox_random_mut.Text = "10";
+            // 
+            // label_random_mut
+            // 
+            label_random_mut.AutoSize = true;
+            label_random_mut.Location = new Point(17, 166);
+            label_random_mut.Name = "label_random_mut";
+            label_random_mut.Size = new Size(281, 20);
+            label_random_mut.TabIndex = 11;
+            label_random_mut.Text = "Szansa na całkowicie losową mutację (%)";
+            // 
+            // textBox_mut_chance
+            // 
+            textBox_mut_chance.Location = new Point(304, 130);
+            textBox_mut_chance.Name = "textBox_mut_chance";
+            textBox_mut_chance.Size = new Size(125, 27);
+            textBox_mut_chance.TabIndex = 10;
+            textBox_mut_chance.Text = "2";
+            // 
+            // label_mut_chance
+            // 
+            label_mut_chance.AutoSize = true;
+            label_mut_chance.Location = new Point(114, 133);
+            label_mut_chance.Name = "label_mut_chance";
+            label_mut_chance.Size = new Size(184, 20);
+            label_mut_chance.TabIndex = 9;
+            label_mut_chance.Text = "Ilość mutacji (% populacji)";
+            // 
+            // textBox_i_random
+            // 
+            textBox_i_random.Location = new Point(304, 97);
+            textBox_i_random.Name = "textBox_i_random";
+            textBox_i_random.Size = new Size(125, 27);
+            textBox_i_random.TabIndex = 8;
+            textBox_i_random.Text = "30";
+            // 
+            // textBox_c_random
+            // 
+            textBox_c_random.Location = new Point(304, 64);
+            textBox_c_random.Name = "textBox_c_random";
+            textBox_c_random.Size = new Size(125, 27);
+            textBox_c_random.TabIndex = 7;
+            textBox_c_random.Text = "20";
+            // 
+            // label_i_random
+            // 
+            label_i_random.AutoSize = true;
+            label_i_random.Location = new Point(69, 100);
+            label_i_random.Name = "label_i_random";
+            label_i_random.Size = new Size(229, 20);
+            label_i_random.TabIndex = 6;
+            label_i_random.Text = "Osobniki losowane z instancji (%)";
+            // 
+            // label_c_random
+            // 
+            label_c_random.AutoSize = true;
+            label_c_random.Location = new Point(81, 67);
+            label_c_random.Name = "label_c_random";
+            label_c_random.Size = new Size(217, 20);
+            label_c_random.TabIndex = 5;
+            label_c_random.Text = "Osobniki całkowicie losowe (%)";
+            // 
+            // textBox_pop_size
+            // 
+            textBox_pop_size.Location = new Point(304, 31);
+            textBox_pop_size.Name = "textBox_pop_size";
+            textBox_pop_size.Size = new Size(125, 27);
+            textBox_pop_size.TabIndex = 4;
+            textBox_pop_size.Text = "100";
+            // 
+            // label_pop_size
+            // 
+            label_pop_size.AutoSize = true;
+            label_pop_size.Location = new Point(161, 34);
+            label_pop_size.Name = "label_pop_size";
+            label_pop_size.Size = new Size(134, 20);
+            label_pop_size.TabIndex = 3;
+            label_pop_size.Text = "Wielkość populacji";
+            // 
+            // label2
+            // 
+            label2.AutoSize = true;
+            label2.Location = new Point(17, 363);
+            label2.Name = "label2";
+            label2.Size = new Size(50, 20);
+            label2.TabIndex = 2;
+            label2.Text = "label2";
+            // 
+            // label1
+            // 
+            label1.AutoSize = true;
+            label1.Location = new Point(17, 318);
+            label1.Name = "label1";
+            label1.Size = new Size(50, 20);
+            label1.TabIndex = 1;
+            label1.Text = "label1";
+            // 
+            // Uruchomienie_metaheurystyki
+            // 
+            Uruchomienie_metaheurystyki.Location = new Point(270, 276);
+            Uruchomienie_metaheurystyki.Name = "Uruchomienie_metaheurystyki";
+            Uruchomienie_metaheurystyki.Size = new Size(171, 29);
+            Uruchomienie_metaheurystyki.TabIndex = 0;
+            Uruchomienie_metaheurystyki.Text = "Uruchom obliczenia";
+            Uruchomienie_metaheurystyki.UseVisualStyleBackColor = true;
+            Uruchomienie_metaheurystyki.Click += Uruchomienie_metaheurystyki_Click;
             // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(800, 450);
-            Controls.Add(comboBox_dlugosc);
-            Controls.Add(textBox_minDistance);
-            Controls.Add(minDistance_label);
-            Controls.Add(Solution_label);
-            Controls.Add(textBox_errors);
-            Controls.Add(textBox_k);
-            Controls.Add(textBox_maxLength);
-            Controls.Add(label_maxLenght);
-            Controls.Add(label_k);
-            Controls.Add(errors_label);
-            Controls.Add(InstanceBox);
-            Controls.Add(GeneratorBTN);
+            Controls.Add(tabControl1);
             Name = "Form1";
             Text = "Form1";
             Load += Form1_Load;
+            tabControl1.ResumeLayout(false);
+            generator_tab.ResumeLayout(false);
+            generator_tab.PerformLayout();
+            metaheurystyka_tab.ResumeLayout(false);
+            metaheurystyka_tab.PerformLayout();
             ResumeLayout(false);
-            PerformLayout();
         }
 
         #endregion
@@ -180,5 +421,26 @@
         private Label minDistance_label;
         private TextBox textBox_minDistance;
         private ComboBox comboBox_dlugosc;
+        private TabControl tabControl1;
+        private TabPage generator_tab;
+        private TabPage metaheurystyka_tab;
+        private Button Przekazanie;
+        private Button Uruchomienie_metaheurystyki;
+        private Label label2;
+        private Label label1;
+        private Label label_pop_size;
+        private TextBox textBox_pop_size;
+        private Label label_i_random;
+        private Label label_c_random;
+        private TextBox textBox_i_random;
+        private TextBox textBox_c_random;
+        private Label label_mut_chance;
+        private TextBox textBox_mut_chance;
+        private TextBox textBox_random_mut;
+        private Label label_random_mut;
+        private TextBox textBox_tour_size;
+        private Label label_tour_size;
+        private TextBox textBox_time;
+        private Label label_time;
     }
 }

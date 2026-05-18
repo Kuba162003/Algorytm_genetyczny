@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
+using System.Security.Policy;
 using System.Text;
 using System.Threading.Tasks;
+using System.Diagnostics;
 
 namespace Algorytm_genetyczny
 {
@@ -70,14 +73,13 @@ namespace Algorytm_genetyczny
     public class Metaheuristics
     {
         private int[] instance;
-        private int[] best_solution;
+        private Individual? best_individual;
         private int m;
         public Metaheuristics(int[] current_instance)
         {
             instance = current_instance;
             int k = current_instance.Length;
             m = (1 + ((int)(Math.Sqrt(1 + 8 * k)))) / 2;
-            best_solution = new int[m];
         }
 
         private Individual[] First_population(int population_size, int c_random, int i_random)
@@ -285,6 +287,219 @@ namespace Algorytm_genetyczny
             }
 
             return population;
+        }
+        private Individual Crossover(Individual parent1, Individual parent2)
+        {
+            int[] cross1 = parent1.Chromosome;
+            int[] cross2 = parent2.Chromosome;
+            int[] hybrid = new int[m];
+            hybrid[0] = 0;
+
+            HashSet<int> common_genes = new HashSet<int>();
+            HashSet<int> rest_genes = new HashSet<int>();
+            for (int i = 1; i < m; i++)
+            {
+                common_genes.Add(cross1[i]);
+                rest_genes.Add(cross1[i]);
+            }
+
+            common_genes.IntersectWith(cross2); // część wspólna zbiorów
+            rest_genes.SymmetricExceptWith(cross2); // elementy nie wspólne
+            rest_genes.Remove(0); // usunięcie 0 pochodzącego z cross2
+
+            // konwersja HaschSet do listy aby losować
+            List<int> rest_genes_list = rest_genes.ToList();
+
+            int currentIndex = 1;
+
+            // Bezpośrednie wstawienie
+            foreach (int gene in common_genes)
+            {
+                hybrid[currentIndex] = gene;
+                currentIndex++;
+            }
+            while (currentIndex < m)
+            {
+                int randomIndex = Random.Shared.Next(0, rest_genes_list.Count);
+                hybrid[currentIndex] = rest_genes_list[randomIndex];
+
+                // zamist rest_genes_list.RemoveAt(randomIndex);
+                int lastIndex = rest_genes_list.Count - 1;
+                rest_genes_list[randomIndex] = rest_genes_list[lastIndex];
+                rest_genes_list.RemoveAt(lastIndex);
+
+                currentIndex++;
+            }
+
+            Array.Sort(hybrid);
+
+            Individual child = new Individual(hybrid, instance);
+            return child;
+        }
+        private Individual Mutate(Individual individual, int random_mutation)
+        {
+            int[] mutated_chromosome = (int[])individual.Chromosome.Clone();
+            HashSet<int> hash_chromosome = new HashSet<int>(mutated_chromosome);
+            int mutate_index = Random.Shared.Next(1, m);
+
+            bool mutation_success = false;
+
+
+            int type_draw = Random.Shared.Next(0, 100);
+
+            if (type_draw >= random_mutation)
+            {
+                int startIdx = Random.Shared.Next(0, instance.Length);
+                for (int i = 0; i < instance.Length; i++)
+                {
+                    // Przeszukiwanie liniowe z zawijaniem (modulo) - sprawdza całą tablicę raz
+                    int currentIdx = (startIdx + i) % instance.Length;
+                    int candidate = instance[currentIdx];
+
+                    // Omijamy zero i geny już obecne w chromosomie
+                    if (candidate != 0 && !hash_chromosome.Contains(candidate))
+                    {
+                        mutated_chromosome[mutate_index] = candidate;
+                        mutation_success = true;
+                        break;
+                    }
+                }
+            }
+
+            if (!mutation_success || type_draw < random_mutation)
+            {
+                int maxVal = instance[instance.Length - 1];
+                int startVal = Random.Shared.Next(1, maxVal + 1);
+
+                for (int i = 0; i < maxVal; i++)
+                {
+                    // Przeszukiwanie liniowe od losowego punktu w całym dopuszczalnym zakresie
+                    int candidate = 1 + (startVal + i - 1) % maxVal;
+
+                    if (!hash_chromosome.Contains(candidate))
+                    {
+                        mutated_chromosome[mutate_index] = candidate;
+                        mutation_success = true;
+                        break;
+                    }
+                }
+            }
+            // jeśli mutacja niemożliwa, zwracany chromosom bez zmian
+
+            if (mutation_success)
+            {
+                Array.Sort(mutated_chromosome);
+            }
+
+            Individual mutated_individual = new Individual(mutated_chromosome, instance);
+            return mutated_individual;
+        }
+        private Individual Tournament(Individual[] population, int tournament_size)
+        {
+            Individual bestCandidate = population[Random.Shared.Next(0, population.Length)];
+
+            for (int i = 1; i < tournament_size; i++)
+            {
+                int randomIndex = Random.Shared.Next(0, population.Length);
+                Individual challenger = population[randomIndex];
+
+                if (challenger.Value > bestCandidate.Value)
+                {
+                    bestCandidate = challenger;
+                }
+            }
+
+            return bestCandidate;
+        }
+        public Individual Evolve(int population_size, int c_random, int i_random, int random_mutation, int mutation_chance, int tournament_size, int time, Func<bool> isPaused, Func<bool> isStopped, Action<int> reportProgress)
+        {
+            Individual[] population = First_population(population_size, c_random, i_random);
+
+            best_individual = population[0];
+            for (int i = 1; i < population_size; i++)
+            {
+                if (population[i].Value > best_individual.Value)
+                {
+                    Individual new_best = population[i];
+                    population[i] = population[0];
+                    population[0] = new_best;
+                    best_individual = new_best;
+                }
+            }
+
+            Stopwatch sw = Stopwatch.StartNew();
+            TimeSpan limit = TimeSpan.FromSeconds(time);
+
+            while (sw.Elapsed < limit)
+            {
+                if (isStopped != null && isStopped())
+                {
+                    sw.Stop();
+                    return best_individual;
+                }
+
+                if (isPaused != null && isPaused())
+                {
+                    sw.Stop();
+                    while (isPaused())
+                    {
+                        Thread.Sleep(100);
+                    }
+                    sw.Start();
+                }
+
+                Individual[] new_population = new Individual[population_size];
+                new_population[0] = best_individual;
+                for (int i = 1; i < population_size; i++)
+                {
+                    Individual parent1 = Tournament(population, tournament_size);
+                    Individual parent2 = Tournament(population, tournament_size);
+                    Individual child = Crossover(parent1, parent2);
+                    new_population[i] = child;
+
+                    if (new_population[i].Value > best_individual.Value)
+                    {
+                        new_population[i] = new_population[0];
+                        new_population[0] = child;
+                        best_individual = child;
+                    }
+                }
+
+                for (int i = 0; i < (int)Math.Round(population_size * mutation_chance / 100.0); i++)
+                {
+                    int randomIndex = Random.Shared.Next(1, population_size);
+                    new_population[randomIndex] = Mutate(new_population[randomIndex], random_mutation);
+
+                    if (new_population[randomIndex].Value > best_individual.Value)
+                    {
+                        Individual new_best = new_population[randomIndex];
+                        new_population[randomIndex] = new_population[0];
+                        new_population[0] = new_best;
+                        best_individual = new_best;
+                    }
+                }
+
+                population = new_population;
+
+                if (reportProgress != null)
+                {
+                    reportProgress(best_individual.Value);
+                }
+
+                if (best_individual.Value == instance.Length)
+                {
+                    sw.Stop();
+                    return best_individual;
+                }
+            }
+            sw.Stop();
+
+            return best_individual;
+        }
+
+        public int GetInstanceLength()
+        {
+            return instance.Length;
         }
     }
 }
