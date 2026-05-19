@@ -1,6 +1,7 @@
 using System;
 using System.ComponentModel;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement;
+using System.Windows.Forms.DataVisualization.Charting;
 
 namespace Algorytm_genetyczny
 {
@@ -9,6 +10,9 @@ namespace Algorytm_genetyczny
         Metaheuristics? metaheurystyka;
         volatile bool Active = true;
         volatile bool Stop = false;
+        Chart? chart1;
+
+        private int[]? solution;
         public Form1()
         {
             InitializeComponent();
@@ -67,12 +71,31 @@ namespace Algorytm_genetyczny
 
             string v = string.Join(", ", instancja.Get_Instance());
             InstanceBox.Text = v;
-            Solution_label.Text = string.Join(", ", instancja.Get_Solution());
+            solution = instancja.Get_Solution().ToArray();
         }
 
         private void Form1_Load(object sender, EventArgs e)
         {
             comboBox_dlugosc.SelectedItem = "instancji";
+
+            chart1 = new Chart();
+
+            chart1.Parent = zakladki.TabPages[2];
+
+            chart1.Size = new Size(600, 300);
+            chart1.Location = new Point(100, 0);
+
+            // Dodajemy obszar rysowania (t³o z siatk¹)
+            chart1.ChartAreas.Add(new ChartArea("MainArea"));
+
+            // Konfigurujemy liniê (Seriê)
+            Series linia = new Series("Wynik");
+            linia.ChartType = SeriesChartType.Line; // Wykres liniowy
+            linia.Color = Color.MediumVioletRed;               // Kolor linii
+            linia.BorderWidth = 4;                  // Gruboœæ linii
+
+            // Podpinamy liniê pod wykres
+            chart1.Series.Add(linia);
         }
 
         private void Przekazanie_Click(object sender, EventArgs e)
@@ -132,9 +155,9 @@ namespace Algorytm_genetyczny
                 MessageBox.Show("Osobników ca³kowicie losowych i losowanych z instancji nie mo¿e byæ wiêcej ni¿ 100%.");
                 return;
             }
-            if (!int.TryParse(textBox_mut_chance.Text, out int mutation_chance) || mutation_chance < 0 || mutation_chance > 100)
+            if (!int.TryParse(textBox_mut_chance.Text, out int mutation_chance) || mutation_chance < 0)
             {
-                MessageBox.Show("Proszê wpisaæ poprawn¹ liczbê ca³kowit¹ <= 100 dla 'Iloœæ mutacji'.");
+                MessageBox.Show("Proszê wpisaæ poprawn¹ liczbê ca³kowit¹ dla 'Iloœæ mutacji'.");
                 return;
             }
             if (!int.TryParse(textBox_random_mut.Text, out int random_mutation) || random_mutation < 0 || random_mutation > 100)
@@ -153,24 +176,30 @@ namespace Algorytm_genetyczny
                 return;
             }
 
-            zakladki.SelectedIndex = 2;
 
             if (metaheurystyka != null)
             {
+                textBox_Wynik.Clear();
+                textBox_solution.Clear();
+                label_solution.Text = String.Empty;
+                label_function.Text = String.Empty;
+                progressBar1.Value = 0;
+
                 Active = true;
                 Stop = false;
 
+                zakladki.SelectedIndex = 2;
                 label_wynik.Text = "Inicjalizacja...";
 
-                chart1.Series[0].Points.Clear();
+                chart1!.Series[0].Points.Clear();
 
                 BackgroundWorker bw = new BackgroundWorker();
                 bw.WorkerReportsProgress = true;
 
                 bw.DoWork += new DoWorkEventHandler(
-                    delegate (object o, DoWorkEventArgs args)
+                    delegate (object? o, DoWorkEventArgs args)
                     {
-                        BackgroundWorker worker = o as BackgroundWorker;
+                        BackgroundWorker worker = (BackgroundWorker)o!; //zamist BackgroundWorker worker = o as BackgroundWorker;
 
                         Func<bool> funkcjaPauzy = () => !Active;
                         Func<bool> funkcjaStopu = () => Stop;
@@ -183,7 +212,7 @@ namespace Algorytm_genetyczny
                             if (procent > 100) procent = 100;
 
                             // Wysy³amy procent jako g³ówny parametr, a wynik jako dodatek (UserState)
-                            worker.ReportProgress(procent, aktualnyWynik);
+                            worker!.ReportProgress(procent, aktualnyWynik);
                         };
 
                         Individual ostateczne_rozwiazanie = metaheurystyka.Evolve(
@@ -197,16 +226,16 @@ namespace Algorytm_genetyczny
                 );
 
                 bw.ProgressChanged += new ProgressChangedEventHandler(
-                delegate (object o, ProgressChangedEventArgs args)
+                delegate (object? o, ProgressChangedEventArgs args)
                 {
                     // 1. Odbieramy nasz wynik
-                    int aktualny_wynik = (int)args.UserState;
+                    int aktualny_wynik = (int)args.UserState!;
 
                     // 2. Odbieramy obliczony procent czasu!
                     int procentPostepu = args.ProgressPercentage;
 
                     // Aktualizujemy label z wynikiem
-                    label_wynik.Text = $"{aktualny_wynik} / {metaheurystyka.GetInstanceLength()}";
+                    label_wynik.Text = $"Aktualna wartoœæ funkcji celu: {aktualny_wynik} / {metaheurystyka.GetInstanceLength()}";
 
                     progressBar1.Value = procentPostepu;
 
@@ -215,12 +244,27 @@ namespace Algorytm_genetyczny
             );
 
                 bw.RunWorkerCompleted += new RunWorkerCompletedEventHandler(
-                    delegate (object o, RunWorkerCompletedEventArgs args)
+                    delegate (object? o, RunWorkerCompletedEventArgs args)
                     {
-                        Individual wynik = (Individual)args.Result;
+                        Individual wynik = (Individual)args.Result!;
 
-                        label1.Text = string.Join(", ", wynik.Chromosome);
-                        label_wynik.Text = $"{wynik.Value} / {metaheurystyka.GetInstanceLength()}";
+                        label_wynik.Text = $"Koñcowa wartoœæ funkcji celu: {wynik.Value} / {metaheurystyka.GetInstanceLength()}";
+                        
+                        zakladki.SelectedIndex = 3;
+                        textBox_Wynik.Text = string.Join(", ", wynik.Chromosome);
+                        label_function.Text = $"Wartoœæ funkcji celu: {wynik.Value} / {metaheurystyka!.GetInstanceLength()}";
+
+                        if (solution != null)
+                        {
+                            label_solution.Text = $"Zgodnoœæ z prawdziwym rozwi¹zaniem: {wynik.Chromosome.Intersect(solution).Count()} / {solution.Length}";
+                            textBox_solution.Text = $"{string.Join(", ", solution)}";
+                        }
+                        else
+                        {
+                            // Scenariusz rêcznego wpisania (nie znamy orygina³u)
+                            label_solution.Text = "Zgodnoœæ z prawdziwym rozwi¹zaniem: Nieznana (instancja wprowadzona rêcznie)";
+                            textBox_solution.Text = "Brak danych o oryginale";
+                        }
                     }
                 );
 
@@ -239,12 +283,14 @@ namespace Algorytm_genetyczny
             if (Active)
             {
                 Active = false;
-                // Opcjonalnie: zmiana tekstu na przycisku na "Wznów"
+                buttonPauza.Text = "Wznów";
+                buttonPauza.BackColor = Color.Green;
             }
             else
             {
                 Active = true;
-                // Opcjonalnie: zmiana tekstu na przycisku z powrotem na "Pauza"
+                buttonPauza.Text = "Pauza";
+                buttonPauza.BackColor = Color.Orange;
             }
         }
 
