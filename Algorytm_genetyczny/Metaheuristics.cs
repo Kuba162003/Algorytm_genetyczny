@@ -411,7 +411,7 @@ namespace Algorytm_genetyczny
 
             return bestCandidate;
         }
-        public Individual Evolve(int population_size, int c_random, int i_random, int random_mutation, int mutation_chance, int tournament_size, int time, Func<bool> isPaused, Func<bool> isStopped, Action<int> reportProgress)
+        public Individual Evolve(int population_size, int c_random, int i_random, int random_mutation, int mutation_chance, int tournament_size, int time, Func<bool> isPaused, Func<bool> isStopped, Action<int, int> reportProgress)
         {
             Individual[] population = First_population(population_size, c_random, i_random);
 
@@ -483,7 +483,8 @@ namespace Algorytm_genetyczny
 
                 if (reportProgress != null)
                 {
-                    reportProgress(best_individual.Value);
+                    int elapseTime = (int)sw.Elapsed.TotalSeconds;
+                    reportProgress(elapseTime, best_individual.Value);
                 }
 
                 if (best_individual.Value == instance.Length)

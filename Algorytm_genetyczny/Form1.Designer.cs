@@ -40,7 +40,7 @@
             minDistance_label = new Label();
             textBox_minDistance = new TextBox();
             comboBox_dlugosc = new ComboBox();
-            tabControl1 = new TabControl();
+            zakladki = new TabControl();
             generator_tab = new TabPage();
             Przekazanie = new Button();
             metaheurystyka_tab = new TabPage();
@@ -58,12 +58,17 @@
             label_c_random = new Label();
             textBox_pop_size = new TextBox();
             label_pop_size = new Label();
-            label2 = new Label();
-            label1 = new Label();
             Uruchomienie_metaheurystyki = new Button();
-            tabControl1.SuspendLayout();
+            wyniki_tab = new TabPage();
+            progressBar1 = new ProgressBar();
+            buttonStop = new Button();
+            buttonPauza = new Button();
+            label1 = new Label();
+            label_wynik = new Label();
+            zakladki.SuspendLayout();
             generator_tab.SuspendLayout();
             metaheurystyka_tab.SuspendLayout();
+            wyniki_tab.SuspendLayout();
             SuspendLayout();
             // 
             // GeneratorBTN
@@ -127,7 +132,7 @@
             textBox_k.Name = "textBox_k";
             textBox_k.Size = new Size(125, 27);
             textBox_k.TabIndex = 7;
-            textBox_k.Text = "1225";
+            textBox_k.Text = "19900";
             // 
             // textBox_errors
             // 
@@ -173,15 +178,16 @@
             comboBox_dlugosc.Size = new Size(106, 28);
             comboBox_dlugosc.TabIndex = 12;
             // 
-            // tabControl1
+            // zakladki
             // 
-            tabControl1.Controls.Add(generator_tab);
-            tabControl1.Controls.Add(metaheurystyka_tab);
-            tabControl1.Location = new Point(2, 5);
-            tabControl1.Name = "tabControl1";
-            tabControl1.SelectedIndex = 0;
-            tabControl1.Size = new Size(800, 433);
-            tabControl1.TabIndex = 13;
+            zakladki.Controls.Add(generator_tab);
+            zakladki.Controls.Add(metaheurystyka_tab);
+            zakladki.Controls.Add(wyniki_tab);
+            zakladki.Location = new Point(2, 2);
+            zakladki.Name = "zakladki";
+            zakladki.SelectedIndex = 0;
+            zakladki.Size = new Size(800, 436);
+            zakladki.TabIndex = 13;
             // 
             // generator_tab
             // 
@@ -201,7 +207,7 @@
             generator_tab.Location = new Point(4, 29);
             generator_tab.Name = "generator_tab";
             generator_tab.Padding = new Padding(3);
-            generator_tab.Size = new Size(792, 400);
+            generator_tab.Size = new Size(792, 403);
             generator_tab.TabIndex = 0;
             generator_tab.Text = "Generator";
             generator_tab.UseVisualStyleBackColor = true;
@@ -232,13 +238,11 @@
             metaheurystyka_tab.Controls.Add(label_c_random);
             metaheurystyka_tab.Controls.Add(textBox_pop_size);
             metaheurystyka_tab.Controls.Add(label_pop_size);
-            metaheurystyka_tab.Controls.Add(label2);
-            metaheurystyka_tab.Controls.Add(label1);
             metaheurystyka_tab.Controls.Add(Uruchomienie_metaheurystyki);
             metaheurystyka_tab.Location = new Point(4, 29);
             metaheurystyka_tab.Name = "metaheurystyka_tab";
             metaheurystyka_tab.Padding = new Padding(3);
-            metaheurystyka_tab.Size = new Size(792, 400);
+            metaheurystyka_tab.Size = new Size(792, 403);
             metaheurystyka_tab.TabIndex = 1;
             metaheurystyka_tab.Text = "Metaheurystyka";
             metaheurystyka_tab.UseVisualStyleBackColor = true;
@@ -362,24 +366,6 @@
             label_pop_size.TabIndex = 3;
             label_pop_size.Text = "Wielkość populacji";
             // 
-            // label2
-            // 
-            label2.AutoSize = true;
-            label2.Location = new Point(17, 363);
-            label2.Name = "label2";
-            label2.Size = new Size(50, 20);
-            label2.TabIndex = 2;
-            label2.Text = "label2";
-            // 
-            // label1
-            // 
-            label1.AutoSize = true;
-            label1.Location = new Point(17, 318);
-            label1.Name = "label1";
-            label1.Size = new Size(50, 20);
-            label1.TabIndex = 1;
-            label1.Text = "label1";
-            // 
             // Uruchomienie_metaheurystyki
             // 
             Uruchomienie_metaheurystyki.Location = new Point(270, 276);
@@ -390,20 +376,82 @@
             Uruchomienie_metaheurystyki.UseVisualStyleBackColor = true;
             Uruchomienie_metaheurystyki.Click += Uruchomienie_metaheurystyki_Click;
             // 
+            // wyniki_tab
+            // 
+            wyniki_tab.Controls.Add(progressBar1);
+            wyniki_tab.Controls.Add(buttonStop);
+            wyniki_tab.Controls.Add(buttonPauza);
+            wyniki_tab.Controls.Add(label1);
+            wyniki_tab.Controls.Add(label_wynik);
+            wyniki_tab.Location = new Point(4, 29);
+            wyniki_tab.Name = "wyniki_tab";
+            wyniki_tab.Padding = new Padding(3);
+            wyniki_tab.Size = new Size(792, 403);
+            wyniki_tab.TabIndex = 2;
+            wyniki_tab.Text = "Wyniki";
+            wyniki_tab.UseVisualStyleBackColor = true;
+            // 
+            // progressBar1
+            // 
+            progressBar1.Location = new Point(27, 327);
+            progressBar1.Name = "progressBar1";
+            progressBar1.Size = new Size(726, 29);
+            progressBar1.TabIndex = 5;
+            // 
+            // buttonStop
+            // 
+            buttonStop.Location = new Point(384, 267);
+            buttonStop.Name = "buttonStop";
+            buttonStop.Size = new Size(94, 29);
+            buttonStop.TabIndex = 4;
+            buttonStop.Text = "Stop";
+            buttonStop.UseVisualStyleBackColor = true;
+            buttonStop.Click += buttonStop_Click;
+            // 
+            // buttonPauza
+            // 
+            buttonPauza.Location = new Point(239, 267);
+            buttonPauza.Name = "buttonPauza";
+            buttonPauza.Size = new Size(94, 29);
+            buttonPauza.TabIndex = 3;
+            buttonPauza.Text = "Pauza";
+            buttonPauza.UseVisualStyleBackColor = true;
+            buttonPauza.Click += buttonPauza_Click;
+            // 
+            // label1
+            // 
+            label1.AutoSize = true;
+            label1.Location = new Point(27, 162);
+            label1.Name = "label1";
+            label1.Size = new Size(50, 20);
+            label1.TabIndex = 1;
+            label1.Text = "label1";
+            // 
+            // label_wynik
+            // 
+            label_wynik.AutoSize = true;
+            label_wynik.Location = new Point(27, 203);
+            label_wynik.Name = "label_wynik";
+            label_wynik.Size = new Size(50, 20);
+            label_wynik.TabIndex = 2;
+            label_wynik.Text = "label2";
+            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(800, 450);
-            Controls.Add(tabControl1);
+            Controls.Add(zakladki);
             Name = "Form1";
             Text = "Form1";
             Load += Form1_Load;
-            tabControl1.ResumeLayout(false);
+            zakladki.ResumeLayout(false);
             generator_tab.ResumeLayout(false);
             generator_tab.PerformLayout();
             metaheurystyka_tab.ResumeLayout(false);
             metaheurystyka_tab.PerformLayout();
+            wyniki_tab.ResumeLayout(false);
+            wyniki_tab.PerformLayout();
             ResumeLayout(false);
         }
 
@@ -421,12 +469,12 @@
         private Label minDistance_label;
         private TextBox textBox_minDistance;
         private ComboBox comboBox_dlugosc;
-        private TabControl tabControl1;
+        private TabControl zakladki;
         private TabPage generator_tab;
         private TabPage metaheurystyka_tab;
         private Button Przekazanie;
         private Button Uruchomienie_metaheurystyki;
-        private Label label2;
+        private Label label_wynik;
         private Label label1;
         private Label label_pop_size;
         private TextBox textBox_pop_size;
@@ -442,5 +490,9 @@
         private Label label_tour_size;
         private TextBox textBox_time;
         private Label label_time;
+        private TabPage wyniki_tab;
+        private Button buttonStop;
+        private Button buttonPauza;
+        private ProgressBar progressBar1;
     }
 }
