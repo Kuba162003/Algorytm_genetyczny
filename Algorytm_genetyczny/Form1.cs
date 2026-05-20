@@ -183,6 +183,7 @@ namespace Algorytm_genetyczny
                 textBox_solution.Clear();
                 label_solution.Text = String.Empty;
                 label_function.Text = String.Empty;
+                label_sol.Text = "Rozwi¹zanie z generatora";
                 progressBar1.Value = 0;
 
                 Active = true;
@@ -225,6 +226,7 @@ namespace Algorytm_genetyczny
                     }
                 );
 
+                int dlugosc_instancji = metaheurystyka.GetInstanceLength();
                 bw.ProgressChanged += new ProgressChangedEventHandler(
                 delegate (object? o, ProgressChangedEventArgs args)
                 {
@@ -235,7 +237,7 @@ namespace Algorytm_genetyczny
                     int procentPostepu = args.ProgressPercentage;
 
                     // Aktualizujemy label z wynikiem
-                    label_wynik.Text = $"Aktualna wartoœæ funkcji celu: {aktualny_wynik} / {metaheurystyka.GetInstanceLength()}";
+                    label_wynik.Text = $"Aktualna wartoœæ funkcji celu: {aktualny_wynik} / {dlugosc_instancji}";
 
                     progressBar1.Value = procentPostepu;
 
@@ -248,16 +250,40 @@ namespace Algorytm_genetyczny
                     {
                         Individual wynik = (Individual)args.Result!;
 
-                        label_wynik.Text = $"Koñcowa wartoœæ funkcji celu: {wynik.Value} / {metaheurystyka.GetInstanceLength()}";
+                        label_wynik.Text = $"Koñcowa wartoœæ funkcji celu: {wynik.Value} / {dlugosc_instancji}";
                         
                         zakladki.SelectedIndex = 3;
                         textBox_Wynik.Text = string.Join(", ", wynik.Chromosome);
-                        label_function.Text = $"Wartoœæ funkcji celu: {wynik.Value} / {metaheurystyka!.GetInstanceLength()}";
+                        label_function.Text = $"Wartoœæ funkcji celu: {wynik.Value} / {dlugosc_instancji}";
 
                         if (solution != null)
                         {
-                            label_solution.Text = $"Zgodnoœæ z prawdziwym rozwi¹zaniem: {wynik.Chromosome.Intersect(solution).Count()} / {solution.Length}";
-                            textBox_solution.Text = $"{string.Join(", ", solution)}";
+                            // 1. Znajdujemy najwiêkszy punkt w oryginale (punkt odniesienia dla lustra)
+                            int maxElement = solution.Max();
+
+                            // 2. Generujemy odbicie lustrzane orygina³u
+                            int[] mirror = solution.Select(x => maxElement - x).OrderBy(x => x).ToArray();
+
+                            // 3. Sprawdzamy pokrycie dla obu wariantów
+                            int normalCount = wynik.Chromosome.Intersect(solution).Count();
+                            int mirrorCount = wynik.Chromosome.Intersect(mirror).Count();
+
+                            // 4. Wybieramy lepszy wynik
+                            int bestCount = Math.Max(normalCount, mirrorCount);
+
+                            double procent = Math.Round((double)bestCount / solution.Length * 100, 2);
+                            label_solution.Text = $"Zgodnoœæ z prawdziwym rozwi¹zaniem: {bestCount} / {solution.Length} ({procent} %)";
+
+                            // 6. Wpisujemy do TextBoxa ten wariant uk³adu, w który trafi³ algorytm
+                            if (mirrorCount > normalCount)
+                            {
+                                label_sol.Text = "Rozwi¹zanie z generatora (odbicie lustrzane)";
+                                textBox_solution.Text = $"{string.Join(", ", mirror)}";
+                            }
+                            else
+                            {
+                                textBox_solution.Text = $"{string.Join(", ", solution)}";
+                            }
                         }
                         else
                         {
