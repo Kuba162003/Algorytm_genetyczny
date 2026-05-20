@@ -129,8 +129,15 @@ namespace Algorytm_genetyczny
                 }
             }
 
-            metaheurystyka = new Metaheuristics(instance);
-            zakladki.SelectedIndex = 1;
+            try
+            {
+                metaheurystyka = new Metaheuristics(instance);
+                zakladki.SelectedIndex = 1;
+            }
+            catch (ArgumentException ex)
+            {
+                MessageBox.Show(ex.Message, "B³¹d instancji", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private void Uruchomienie_metaheurystyki_Click(object sender, EventArgs e)

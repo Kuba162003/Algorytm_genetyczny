@@ -79,7 +79,20 @@ namespace Algorytm_genetyczny
         {
             instance = current_instance;
             int k = current_instance.Length;
-            m = (1 + ((int)(Math.Sqrt(1 + 8 * k)))) / 2;
+            double m_double = (1 + ((Math.Sqrt(1 + 8 * k)))) / 2;
+            if (m_double % 1 != 0)
+            {
+                // Jeśli jest ułamek, rzucamy wyjątek z czytelnym komunikatem
+                throw new ArgumentException($"Wprowadzona instancja ma nieprawidłową długość ({k} elementów).");
+            }
+
+            m = (int)m_double;
+
+            int maxElement = current_instance.Max();
+            if (m > maxElement + 1)
+            {
+                throw new ArgumentException($"Instancja jest błędna. Wymaga {m} unikalnych punktów, ale największa odległość to {maxElement}.");
+            }
         }
 
         private Individual[] First_population(int population_size, int c_random, int i_random)
