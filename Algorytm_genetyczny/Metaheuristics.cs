@@ -82,17 +82,18 @@ namespace Algorytm_genetyczny
             double m_double = (1 + ((Math.Sqrt(1 + 8 * k)))) / 2;
             if (m_double % 1 != 0)
             {
-                // Jeśli jest ułamek, rzucamy wyjątek z czytelnym komunikatem
                 throw new ArgumentException($"Wprowadzona instancja ma nieprawidłową długość ({k} elementów).");
             }
 
             m = (int)m_double;
 
+            /*
             int maxElement = current_instance.Max();
             if (m > maxElement + 1)
             {
                 throw new ArgumentException($"Instancja jest błędna. Wymaga {m} unikalnych punktów, ale największa odległość to {maxElement}.");
             }
+            */
         }
 
         private Individual[] First_population(int population_size, int c_random, int i_random)
@@ -111,8 +112,23 @@ namespace Algorytm_genetyczny
 
             Individual[] population = new Individual[population_size];
             int maxLength = instance[instance.Length - 1];
-            // wyznaczanie całkowicie losowej części populacji
-            for (int i = 0; i < completely_random; i++)
+
+            if (m > instance.Max() + 1)
+            {
+                int[] solution = new int[m];
+                for (int i = 0; i < m;  i++)
+                {
+                    solution[i] = i;
+                }
+                for (int i = 0; i < population_size; i++)
+                {
+                    population[i] = new Individual(solution, instance);
+                }
+                return population;
+            }
+
+                // wyznaczanie całkowicie losowej części populacji
+                for (int i = 0; i < completely_random; i++)
             {
                 int[] solution = new int[m];
                 solution[0] = 0;

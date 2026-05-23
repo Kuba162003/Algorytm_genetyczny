@@ -10,6 +10,7 @@ namespace Algorytm_genetyczny
         Metaheuristics? metaheurystyka;
         volatile bool Active = true;
         volatile bool Stop = false;
+        volatile bool IsRunning = false;
         Chart? chart1;
 
         private int[]? solution;
@@ -182,6 +183,11 @@ namespace Algorytm_genetyczny
                 MessageBox.Show("Proszê wpisaæ poprawn¹ liczbê ca³kowit¹ dla 'Czas dzia³ania'.");
                 return;
             }
+            if(IsRunning)
+            {
+                MessageBox.Show("Obliczenia trwaj¹. Najpierw zatrzymaj poprzenie obliczenia.");
+                return;
+            }
 
 
             if (metaheurystyka != null)
@@ -195,6 +201,7 @@ namespace Algorytm_genetyczny
 
                 Active = true;
                 Stop = false;
+                IsRunning = true;
 
                 zakladki.SelectedIndex = 2;
                 label_wynik.Text = "Inicjalizacja...";
@@ -213,13 +220,10 @@ namespace Algorytm_genetyczny
                         Func<bool> funkcjaStopu = () => Stop;
                         Action<int, int> funkcjaRaportowania = (uplynietyCzas, aktualnyWynik) =>
                         {
-                            // Obliczamy procent postêpu (up³yniête sekundy / ca³kowity czas * 100)
                             int procent = (int)(((double)uplynietyCzas / time) * 100);
 
-                            // Zabezpieczenie, ¿eby pasek nie wyszed³ poza 100% (np. przez ma³e opóŸnienia)
                             if (procent > 100) procent = 100;
 
-                            // Wysy³amy procent jako g³ówny parametr, a wynik jako dodatek (UserState)
                             worker!.ReportProgress(procent, aktualnyWynik);
                         };
 
@@ -237,13 +241,10 @@ namespace Algorytm_genetyczny
                 bw.ProgressChanged += new ProgressChangedEventHandler(
                 delegate (object? o, ProgressChangedEventArgs args)
                 {
-                    // 1. Odbieramy nasz wynik
                     int aktualny_wynik = (int)args.UserState!;
 
-                    // 2. Odbieramy obliczony procent czasu!
                     int procentPostepu = args.ProgressPercentage;
 
-                    // Aktualizujemy label z wynikiem
                     label_wynik.Text = $"Aktualna wartoœæ funkcji celu: {aktualny_wynik} / {dlugosc_instancji}";
 
                     progressBar1.Value = procentPostepu;
@@ -257,6 +258,8 @@ namespace Algorytm_genetyczny
                     {
                         Individual wynik = (Individual)args.Result!;
 
+                        IsRunning = false;
+
                         label_wynik.Text = $"Koñcowa wartoœæ funkcji celu: {wynik.Value} / {dlugosc_instancji}";
                         
                         zakladki.SelectedIndex = 3;
@@ -265,23 +268,18 @@ namespace Algorytm_genetyczny
 
                         if (solution != null)
                         {
-                            // 1. Znajdujemy najwiêkszy punkt w oryginale (punkt odniesienia dla lustra)
+                            // Wyznaczanie odbicia lustrzanego
                             int maxElement = solution.Max();
-
-                            // 2. Generujemy odbicie lustrzane orygina³u
                             int[] mirror = solution.Select(x => maxElement - x).OrderBy(x => x).ToArray();
 
-                            // 3. Sprawdzamy pokrycie dla obu wariantów
                             int normalCount = wynik.Chromosome.Intersect(solution).Count();
                             int mirrorCount = wynik.Chromosome.Intersect(mirror).Count();
 
-                            // 4. Wybieramy lepszy wynik
                             int bestCount = Math.Max(normalCount, mirrorCount);
 
                             double procent = Math.Round((double)bestCount / solution.Length * 100, 2);
                             label_solution.Text = $"Zgodnoœæ z prawdziwym rozwi¹zaniem: {bestCount} / {solution.Length} ({procent} %)";
 
-                            // 6. Wpisujemy do TextBoxa ten wariant uk³adu, w który trafi³ algorytm
                             if (mirrorCount > normalCount)
                             {
                                 label_sol.Text = "Rozwi¹zanie z generatora (odbicie lustrzane)";
