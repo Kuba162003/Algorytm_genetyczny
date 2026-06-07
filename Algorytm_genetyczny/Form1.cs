@@ -77,7 +77,7 @@ namespace Algorytm_genetyczny
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            comboBox_dlugosc.SelectedItem = "instancji";
+            comboBox_dlugosc.SelectedItem = "rozwi¹zania";
 
             chart1 = new Chart();
 
@@ -87,7 +87,12 @@ namespace Algorytm_genetyczny
             chart1.Location = new Point(100, 0);
 
             // Dodajemy obszar rysowania (t³o z siatk¹)
-            chart1.ChartAreas.Add(new ChartArea("MainArea"));
+            ChartArea obszar = new ChartArea("MainArea");
+            obszar.AxisX.Title = "Liczba pokoleñ";
+            obszar.AxisY.Title = "Wartoœæ funkcji celu";
+            obszar.AxisX.TitleFont = new Font("Segoe UI", 10);
+            obszar.AxisY.TitleFont = new Font("Segoe UI", 10);
+            chart1.ChartAreas.Add(obszar);
 
             // Konfigurujemy liniê (Seriê)
             Series linia = new Series("Wynik");
@@ -183,7 +188,7 @@ namespace Algorytm_genetyczny
                 MessageBox.Show("Proszê wpisaæ poprawn¹ liczbê ca³kowit¹ dla 'Czas dzia³ania'.");
                 return;
             }
-            if(IsRunning)
+            if (IsRunning)
             {
                 MessageBox.Show("Obliczenia trwaj¹. Najpierw zatrzymaj poprzenie obliczenia.");
                 return;
@@ -194,8 +199,8 @@ namespace Algorytm_genetyczny
             {
                 textBox_Wynik.Clear();
                 textBox_solution.Clear();
-                label_solution.Text = String.Empty;
-                label_function.Text = String.Empty;
+                label_solution.Text = "Zgodnoœæ z prawdziwym rozwi¹zaniem:";
+                label_function.Text = "Wartoœæ funkcji celu:";
                 label_sol.Text = "Rozwi¹zanie z generatora";
                 progressBar1.Value = 0;
 
@@ -261,11 +266,10 @@ namespace Algorytm_genetyczny
                         IsRunning = false;
 
                         label_wynik.Text = $"Koñcowa wartoœæ funkcji celu: {wynik.Value} / {dlugosc_instancji}";
-                        
+
                         zakladki.SelectedIndex = 3;
                         textBox_Wynik.Text = string.Join(", ", wynik.Chromosome);
-                        label_function.Text = $"Wartoœæ funkcji celu: {wynik.Value} / {dlugosc_instancji}";
-
+                        label_function.Text = $"Wartoœæ funkcji celu: {wynik.Value} / {dlugosc_instancji} ({(double)wynik.Value / dlugosc_instancji:P2})";
                         if (solution != null)
                         {
                             // Wyznaczanie odbicia lustrzanego
@@ -278,7 +282,7 @@ namespace Algorytm_genetyczny
                             int bestCount = Math.Max(normalCount, mirrorCount);
 
                             double procent = Math.Round((double)bestCount / solution.Length * 100, 2);
-                            label_solution.Text = $"Zgodnoœæ z prawdziwym rozwi¹zaniem: {bestCount} / {solution.Length} ({procent} %)";
+                            label_solution.Text = $"Zgodnoœæ z prawdziwym rozwi¹zaniem: {bestCount} / {solution.Length} ({procent}%)";
 
                             if (mirrorCount > normalCount)
                             {
@@ -328,6 +332,11 @@ namespace Algorytm_genetyczny
         private void buttonStop_Click(object sender, EventArgs e)
         {
             Stop = true;
+        }
+
+        private void textBox_Wynik_TextChanged(object sender, EventArgs e)
+        {
+
         }
     }
 }

@@ -138,7 +138,7 @@
             textBox_k.Name = "textBox_k";
             textBox_k.Size = new Size(125, 27);
             textBox_k.TabIndex = 7;
-            textBox_k.Text = "4950";
+            textBox_k.Text = "100";
             // 
             // textBox_errors
             // 
@@ -250,7 +250,7 @@
             textBox_time.Name = "textBox_time";
             textBox_time.Size = new Size(125, 27);
             textBox_time.TabIndex = 16;
-            textBox_time.Text = "10";
+            textBox_time.Text = "60";
             // 
             // label_time
             // 
@@ -301,16 +301,16 @@
             textBox_mut_chance.Name = "textBox_mut_chance";
             textBox_mut_chance.Size = new Size(125, 27);
             textBox_mut_chance.TabIndex = 10;
-            textBox_mut_chance.Text = "2";
+            textBox_mut_chance.Text = "20";
             // 
             // label_mut_chance
             // 
             label_mut_chance.AutoSize = true;
-            label_mut_chance.Location = new Point(114, 133);
+            label_mut_chance.Location = new Point(99, 133);
             label_mut_chance.Name = "label_mut_chance";
-            label_mut_chance.Size = new Size(184, 20);
+            label_mut_chance.Size = new Size(196, 20);
             label_mut_chance.TabIndex = 9;
-            label_mut_chance.Text = "Ilość mutacji (% populacji)";
+            label_mut_chance.Text = "Liczba mutacji (% populacji)";
             // 
             // textBox_i_random
             // 
@@ -352,7 +352,7 @@
             textBox_pop_size.Name = "textBox_pop_size";
             textBox_pop_size.Size = new Size(125, 27);
             textBox_pop_size.TabIndex = 4;
-            textBox_pop_size.Text = "100";
+            textBox_pop_size.Text = "600";
             // 
             // label_pop_size
             // 
@@ -475,16 +475,18 @@
             label_function.AutoSize = true;
             label_function.Location = new Point(10, 372);
             label_function.Name = "label_function";
-            label_function.Size = new Size(0, 20);
+            label_function.Size = new Size(143, 20);
             label_function.TabIndex = 8;
+            label_function.Text = "Wartość funkcji celu:";
             // 
             // label_solution
             // 
             label_solution.AutoSize = true;
             label_solution.Location = new Point(10, 340);
             label_solution.Name = "label_solution";
-            label_solution.Size = new Size(0, 20);
+            label_solution.Size = new Size(273, 20);
             label_solution.TabIndex = 7;
+            label_solution.Text = "Zgodność z prawdziwym rozwiązaniem:";
             // 
             // textBox_Wynik
             // 
@@ -495,6 +497,7 @@
             textBox_Wynik.ScrollBars = ScrollBars.Vertical;
             textBox_Wynik.Size = new Size(776, 127);
             textBox_Wynik.TabIndex = 6;
+            textBox_Wynik.TextChanged += textBox_Wynik_TextChanged;
             // 
             // Form1
             // 
