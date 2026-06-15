@@ -78,6 +78,7 @@ namespace Algorytm_genetyczny
         public Metaheuristics(int[] current_instance)
         {
             instance = current_instance;
+            Array.Sort(instance);
             int k = current_instance.Length;
             double m_double = (1 + ((Math.Sqrt(1 + 8 * k)))) / 2;
             if (m_double % 1 != 0)
